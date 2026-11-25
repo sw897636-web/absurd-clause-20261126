@@ -10,17 +10,20 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Six deadpan legal clauses. Each opens with a section number and the
+// Seven deadpan legal clauses. Each opens with a section number and the
 // classic "By continuing to use this service, you agree that..." formula,
 // piles on concrete detail (a device, a cadence, a titled officer, a
 // counted quantity), and lands the absurd price in the final clause.
-const candidates: string[] = [
-  "Section 7.3: By continuing to use this service, you agree that each month your toaster shall report your breakfast to our Chief Crumb Officer, who may claim one (1) slice of your bread as tribute.",
-  "Section 4.2: By continuing to use this service, you agree that every third Tuesday, your smart fridge may donate one (1) of your left socks to our Chief Sock Officer, Brenda, in perpetuity.",
-  "Section 9.1: By continuing to use this service, you agree that your printer shall, on the last Friday monthly, print one (1) portrait of our founder and mail it to your grandmother at your expense.",
-  "Section 2.8: By continuing to use this service, you agree that your smartwatch may, without notice, donate twelve (12) of your daily steps to our Chief Walking Officer, Derek, every Sunday morning.",
-  "Section 11.4: By continuing to use this service, you agree that your doorbell camera shall wave politely at every passing pigeon and, once a year, invite one (1) pigeon inside for tea.",
-  "Section 6.6: By continuing to use this service, you agree that your microwave shall beep exactly nine (9) times for popcorn and, in exchange, keep one (1) kernel as a processing fee.",
+// The final entry is marked final: true and wins regardless of score.
+type Candidate = { text: string; final?: boolean };
+const candidates: Candidate[] = [
+  { text: "Section 7.3: By continuing to use this service, you agree that each month your toaster shall report your breakfast to our Chief Crumb Officer, who may claim one (1) slice of your bread as tribute." },
+  { text: "Section 4.2: By continuing to use this service, you agree that every third Tuesday, your smart fridge may donate one (1) of your left socks to our Chief Sock Officer, Brenda, in perpetuity." },
+  { text: "Section 9.1: By continuing to use this service, you agree that your printer shall, on the last Friday monthly, print one (1) portrait of our founder and mail it to your grandmother at your expense." },
+  { text: "Section 2.8: By continuing to use this service, you agree that your smartwatch may, without notice, donate twelve (12) of your daily steps to our Chief Walking Officer, Derek, every Sunday morning." },
+  { text: "Section 11.4: By continuing to use this service, you agree that your doorbell camera shall wave politely at every passing pigeon and, once a year, invite one (1) pigeon inside for tea." },
+  { text: "Section 6.6: By continuing to use this service, you agree that your microwave shall beep exactly nine (9) times for popcorn and, in exchange, keep one (1) kernel as a processing fee." },
+  { text: "Section 7.3(b): Each time you click \"I Agree\" without reading, Company acquires one (1) of your houseplants; we currently own 4.2 million ferns, 800,000 cacti and, as of 11 seconds ago, your basil.", final: true },
 ];
 
 // Scoring rubric (higher is better). The winner must be the unique maximum.
@@ -65,11 +68,12 @@ function validate(text: string): void {
   }
 }
 
-const scored = candidates.map((text) => ({ text, score: score(text) }));
+const scored = candidates.map((c) => ({ text: c.text, score: score(c.text), final: c.final ?? false }));
 scored.sort((a, b) => b.score - a.score);
-const winner = scored[0];
+const finalCandidate = scored.find((entry) => entry.final);
+const winner = finalCandidate ?? scored[0];
 const runnerUp = scored[1];
-if (winner.score === runnerUp.score) {
+if (!finalCandidate && winner.score === runnerUp.score) {
   throw new Error(`tie at the top: ${winner.score} points`);
 }
 validate(winner.text);
