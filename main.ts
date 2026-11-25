@@ -74,9 +74,9 @@ if (winner.score === runnerUp.score) {
 }
 validate(winner.text);
 
-const outDir = join(__dirname, "output");
-mkdirSync(outDir, { recursive: true });
-const outPath = join(outDir, "entry.txt");
+const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+mkdirSync(OUTPUT_DIR, { recursive: true });
+const outPath = join(OUTPUT_DIR, "entry.txt");
 writeFileSync(outPath, winner.text, "utf8"); // no trailing newline
 
 console.log(`winner (${winner.score} pts, runner-up ${runnerUp.score} pts):`);
